@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 
 from sklearn.model_selection import train_test_split
 
@@ -46,6 +47,8 @@ def wrangle_zillow():
     df = df.dropna()
 
     # Change the dtype of 'year_built' and 'fips'
+    # First as 
+    df.year_built = df.year_built.astype(int)
     df.year_built = df.year_built.astype(object)
     df.fips = df.fips.astype(object)
 
@@ -55,4 +58,24 @@ def wrangle_zillow():
     return df
 
 
+def split_data(df):
+    '''
+    Takes in a df
+    Returns train, validate, and test DataFrames
+    '''
+    # Create train_validate and test datasets
+    train_validate, test = train_test_split(df, 
+                                        test_size=.2, 
+                                        random_state=123)
+    # Create train and validate datsets
+    train, validate = train_test_split(train_validate, 
+                                   test_size=.3, 
+                                   random_state=123)
+
+    # Take a look at your split datasets
+
+    print(f'train -> {train.shape}')
+    print(f'validate -> {validate.shape}')
+    print(f'test -> {test.shape}')
+    return train, validate, test
 
