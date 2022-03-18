@@ -76,9 +76,9 @@ def split_data(df):
 
     # Take a look at your split datasets
 
-    print(f'train -> {train.shape}')
-    print(f'validate -> {validate.shape}')
-    print(f'test -> {test.shape}')
+    print(f'train <> {train.shape}')
+    print(f'validate <> {validate.shape}')
+    print(f'test <> {test.shape}')
     return train, validate, test
 
 
@@ -128,3 +128,54 @@ def wrangle_grades():
     df = df.astype("int")
     return df
 
+
+
+
+def get_telco_data():
+
+    filename = 'telco.csv'
+    
+    if os.path.exists(filename):
+        print('Reading from csv file...')
+        return pd.read_csv(filename)
+
+    database = 'telco_churn'
+    url = f'mysql+pymysql://{user}:{password}@{host}/{database}'
+     
+    query = '''
+            SELECT * 
+            FROM customers
+            JOIN contract_types USING(contract_type_id)
+            JOIN internet_service_types USING(internet_service_type_id)
+            JOIN payment_types USING(payment_type_id)
+            '''
+     
+    df = pd.read_sql(query, url)
+    df.to_csv(filename, index=False)
+
+
+    print('Pulling from SQL...')
+    return df
+
+
+
+def prep_telco(df):
+    '''
+    Takes in the telco df and cleans the dataframe up for use. Also changes total_charges from type(obj) to type(float) and removes any accounts with a tenure of 0 to keep information relevant
+    '''
+    
+    df = df.drop(columns=['payment_type_id', 'internet_service_type_id', 'contract_type_id'])
+    df.total_charges = df.total_charges.replace(' ', 0).astype(float)
+    df = df[df.tenure != 0]
+
+    cat_columns = ['gender', 'partner', 'dependents', 'phone_service', 'multiple_lines', 'online_security', 'online_backup', 'device_protection', 'tech_support', 'streaming_tv', 'streaming_movies', 'paperless_billing', 'churn', 'contract_type', 'internet_service_type', 'payment_type']
+
+    for col in cat_columns:
+        telco_dummy = pd.get_dummies(df[col],
+                                     prefix=df[col].name,
+                                     dummy_na=False,
+                                     drop_first = True)
+        df = pd.concat([df, telco_dummy], axis=1)
+        df = df.drop(columns=[col])
+    
+    return df
