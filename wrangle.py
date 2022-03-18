@@ -47,8 +47,10 @@ def wrangle_zillow():
     df = df.dropna()
 
     # Change the dtype of 'year_built' and 'fips'
-    # First as 
+    # First as int to get rid of '.0'
     df.year_built = df.year_built.astype(int)
+    
+    # Then as object for categorical sorting
     df.year_built = df.year_built.astype(object)
     df.fips = df.fips.astype(object)
 
@@ -66,11 +68,11 @@ def split_data(df):
     # Create train_validate and test datasets
     train_validate, test = train_test_split(df, 
                                         test_size=.2, 
-                                        random_state=123)
+                                        random_state=1313)
     # Create train and validate datsets
     train, validate = train_test_split(train_validate, 
                                    test_size=.3, 
-                                   random_state=123)
+                                   random_state=1313)
 
     # Take a look at your split datasets
 
