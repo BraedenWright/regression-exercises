@@ -81,3 +81,50 @@ def split_data(df):
     print(f'test -> {test.shape}')
     return train, validate, test
 
+
+
+def scale_data(train, validate, test, scaler, return_scaler=False):
+    '''
+    This function takes in train, validate, and test dataframes and returns a scaled copy of each.
+    If return_scaler=True, the scaler object will be returned as well
+    '''
+    
+    num_columns = ['bedrooms', 'bathrooms', 'sqr_feet', 'tax_value', 'taxamount']
+    
+    train_scaled = train.copy()
+    validated_scaled = validate.copy()
+    test_scaled = test.copy()
+    
+    scaler.fit(train[num_columns])
+    
+    train_scaled[num_columns] = scaler.transform(train[num_columns])
+    validate_scaled[num_columns] = scaler.transform(validate[num_columns])
+    test_scaled[num_columns] = scaler.transform(test[num_columns])
+    
+    if return_scaler:
+        return scaler, train_scaled, validate_scaled, test_scaled
+    else:
+        return train_scaled, validate_scaled, test_scaled
+
+    
+    
+    
+    
+def wrangle_grades():
+    """
+    (Given by Madeleine Capper)
+    Read student_grades csv file into a pandas DataFrame,
+    drop student_id column, replace whitespaces with NaN values,
+    drop any rows with Null values, convert all columns to int64,
+    return cleaned student grades DataFrame.
+    """
+    # Acquire data from csv file.
+    grades = pd.read_csv("student_grades.csv")
+    # Replace white space values with NaN values.
+    grades = grades.replace(r"^\s*$", np.nan, regex=True)
+    # Drop all rows with NaN values.
+    df = grades.dropna()
+    # Convert all columns to int64 data types.
+    df = df.astype("int")
+    return df
+
